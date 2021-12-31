@@ -54,20 +54,22 @@ function insertData(arrayData) {
 //Fontion pour stocker les informations dans localStorage
 function addEntry (arrayData) {
 
-    let existingItems = JSON.parse(localStorage.getItem('itemOrdered'));
-    if (existingItems == null) {
-        existingItems = [];
+    let itemOrdered = JSON.parse(localStorage.getItem('itemOrdered'));
+    if (itemOrdered == null) {
+        itemOrdered = [];
     }
-    console.log(existingItems);
+    console.log(itemOrdered);
 
 
     //Créer "fiche produit" pour sauvegarder dans le localStorage.entry
     let itemQty = document.querySelector('#quantity').value;
     let itemColor = document.querySelector('#colors').value;
+    let itemPrice = document.querySelector('#price').innerText;
     let entry = {
         id : `${arrayData._id}`,
         qty : itemQty,
-        color : itemColor
+        color : itemColor,
+        price : itemPrice
     };
     localStorage.setItem('entry', JSON.stringify(entry));
 
@@ -78,20 +80,20 @@ function addEntry (arrayData) {
     let qtyValue = entry['qty']; //string
 
     if (localStorage.itemOrdered == null) {
-        existingItems.push(entry);
+        itemOrdered.push(entry);
     } else if (localStorage.itemOrdered.includes(idValue) && localStorage.itemOrdered.includes(colorValue)) {
-        for (let i = 0; i < existingItems.length; i++) {
-            if (existingItems[i].id === idValue && existingItems[i].color === colorValue) {
-                let index = existingItems[i]; //Récupérer le produit déjà dans le panier qui a même id et même couleur
+        for (let i = 0; i < itemOrdered.length; i++) {
+            if (itemOrdered[i].id === idValue && itemOrdered[i].color === colorValue) {
+                let index = itemOrdered[i]; //Récupérer le produit déjà dans le panier qui a même id et même couleur
                 let newQtyValue = Number(qtyValue) + Number(index.qty); //Convertir les strings en numbers pour faire la somme
                 index.qty = newQtyValue.toString(); //Reconvertir le résultat en string
             }
         }
     } else {
-        existingItems.push(entry);
+        itemOrdered.push(entry);
     }
     
     
     //Pour créer un panier unique avec tous les produits ajoutés
-    localStorage.setItem('itemOrdered', JSON.stringify(existingItems));
+    localStorage.setItem('itemOrdered', JSON.stringify(itemOrdered));
 }
