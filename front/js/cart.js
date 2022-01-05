@@ -4,6 +4,17 @@ let itemOrdered = JSON.parse(localStorage.getItem('itemOrdered'));
 console.log(itemOrdered);
 
 
+//Tableau pour récupérer les id des produits du panier
+const products = [];
+for (let i = 0; i < itemOrdered.length; i++) {
+    let idEntry = [`${itemOrdered[i].id}`];
+    localStorage.setItem('idEntry', JSON.stringify(idEntry));
+    products.push(idEntry);
+}
+console.log(products)
+
+
+
 //Afficher pour chaque produit du panier
 for (let i = 0; i < itemOrdered.length; i++) {
     let url = `http://localhost:3000/api/products/${itemOrdered[i].id}`;
@@ -14,15 +25,16 @@ for (let i = 0; i < itemOrdered.length; i++) {
             return res.json();
         }
     }).then(function(data) {
-        //Créer la balise article qui va recevoir les éléments de chaque article dans le panier
-        let article = document.createElement('article');
-        document.querySelector('#cart__items').appendChild(article);
-        article.setAttribute('class', 'cart__item');
-        article.setAttribute('data-id', `${itemOrdered[i].id}`);
-        article.setAttribute('data-color', `${itemOrdered[i].color}`);
+
         
         //Insérer dans la balise article tous les éléments nécessaires
         function insertContent() {
+            //Créer la balise article qui va recevoir les éléments de chaque article dans le panier
+            let article = document.createElement('article');
+            document.querySelector('#cart__items').appendChild(article);
+            article.setAttribute('class', 'cart__item');
+            article.setAttribute('data-id', `${itemOrdered[i].id}`);
+            article.setAttribute('data-color', `${itemOrdered[i].color}`);
             article.innerHTML = 
             `<div class="cart__item__img">
                 <img src="${data.imageUrl}" alt="${data.altTxt}">
@@ -90,7 +102,7 @@ for (let i = 0; i < itemOrdered.length; i++) {
             let articleColor = inputArticle.dataset.color;
 
             let totalPrice = 0;
-            if (article.getAttribute('data-color') === articleColor && article.getAttribute('data-id') === articleId) {
+            if (inputArticle.getAttribute('data-color') === articleColor && inputArticle.getAttribute('data-id') === articleId) {
                 for (i = 0; i < itemOrdered.length; i++) {
                     let quantity = itemOrdered[i].quantity;
                     let unitPrice = itemOrdered[i].price;
@@ -128,7 +140,7 @@ orderForm.firstName.addEventListener('change', function() {
 })
 //Vérifier le champ "prénom"
 function validFirstName(inputFirstName) {
-    let firstNameRegExp = new RegExp('^[A-Za-z-]+$', 'g');
+    let firstNameRegExp = new RegExp('[A-Za-z-\s]', 'g');
     let testFirstName = firstNameRegExp.test(inputFirstName.value);
     if (testFirstName) {
         document.querySelector('#firstNameErrorMsg').innerText = '';
@@ -145,7 +157,7 @@ orderForm.lastName.addEventListener('change', function() {
 })
 //Vérifier le champ "nom"
 function validLastName(inputLastName) {
-    let lastNameRegExp = new RegExp('^[A-Za-z-]+$', 'g');
+    let lastNameRegExp = new RegExp('[A-Za-z-\s]', 'g');
     let testLastName = lastNameRegExp.test(inputLastName.value);
     if (testLastName) {
         document.querySelector('#lastNameErrorMsg').innerText = '';
@@ -223,12 +235,10 @@ orderForm.addEventListener('submit', function(event) {
     };
 
     //Mettre l'objet "contact" dans le localStorage
-    localStorage.setItem('contact', JSON.stringify(contact));
+    //localStorage.setItem('contact', JSON.stringify(contact));
 
-    //Récupérer l'id des produits du panier uniquement
-    /*const productID = {
-        id : 
-    }*/
+    //Récupérer l'id des produits du panier uniquement dans un tableau de string
+    /*const productID = [];*/
 
     //Quand tous les champs sont correctement remplis
     if (validFirstName(orderForm.firstName) 
@@ -241,13 +251,13 @@ orderForm.addEventListener('submit', function(event) {
 
         //Mettre les informations du formulaire et les produits du panier
         const toSendToApi = {
-        itemOrdered,
+        products,
         contact
         };
         console.log(toSendToApi);
 
         //Envoie de l'objet toSendToApi vers le serveur
-        /*let url = 'http://localhost:3000/api/products/order';
+        let url = 'http://localhost:3000/api/products/order';
         fetch(url, {
             method: 'POST',
             body: JSON.stringify(toSendToApi),
@@ -255,7 +265,7 @@ orderForm.addEventListener('submit', function(event) {
                 "Accept" : "application/json",
                 "Content-Type" : "application/json",
             }
-        });*/
+        });
     }
 })
 
