@@ -1,6 +1,3 @@
-//localStorage.clear();
-console.log(localStorage);
-
 /*********************************** Côté DOM ***********************************/
 
 //Fonction pour insérer les informations du produit dans la page
@@ -41,6 +38,7 @@ fetch(url).then(function(res) {
     //Envoyer les informations vers le panier en cliquant sur le bouton "Ajouter"
     document.querySelector('#addToCart').addEventListener('click', function() {
         addEntry(data);
+        alert('Votre article a été ajouté dans le panier');
         console.log(localStorage.itemOrdered);
     });
 }).catch(function(err) {

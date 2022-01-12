@@ -4,16 +4,7 @@ let itemOrdered = JSON.parse(localStorage.getItem('itemOrdered'));
 console.log(itemOrdered);
 
 
-//Tableau pour récupérer les id des produits du panier
-const products = [];
-for (let i = 0; i < itemOrdered.length; i++) {
-    let idEntry = [`${itemOrdered[i].id}`];
-    localStorage.setItem('idEntry', JSON.stringify(idEntry));
-    products.push(idEntry);
-}
-console.log(products)
-
-if (itemOrdered[0] == null) {
+if ( itemOrdered === null || itemOrdered.length === 0) {
     let emptyCart = document.querySelector('h1');
     emptyCart.innerText = "Votre panier est vide.";
 } else {
@@ -127,11 +118,22 @@ if (itemOrdered[0] == null) {
             cartTotalQty();
 
 
+
+
         }).catch(function(err) {
             console.log('Une erreur est survenue : ' + err);
         });
     };
 }
+
+//Tableau pour récupérer les id des produits du panier
+const products = [];
+for (let i = 0; i < itemOrdered.length; i++) {
+    let idEntry = [`${itemOrdered[i].id}`];
+    localStorage.setItem('idEntry', JSON.stringify(idEntry));
+    products.push(idEntry);
+}
+console.log(products);
 
 /*********************************** Formulaire ***********************************/
 //Récupérer le formulaire
@@ -149,7 +151,7 @@ function validFirstName(inputFirstName) {
         document.querySelector('#firstNameErrorMsg').innerText = '';
         return true;
     } else {
-        document.querySelector('#firstNameErrorMsg').innerText = 'Prénom non valide';
+        document.querySelector('#firstNameErrorMsg').innerText = 'Veuillez saisir un prénom valide.';
         return false;
     }
 }
@@ -166,7 +168,7 @@ function validLastName(inputLastName) {
         document.querySelector('#lastNameErrorMsg').innerText = '';
         return true;
     } else {
-        document.querySelector('#lastNameErrorMsg').innerText = 'Nom non valide';
+        document.querySelector('#lastNameErrorMsg').innerText = 'Veuillez saisir un nom valide.';
         return false;
     }
 }
@@ -183,7 +185,7 @@ function validAddress(inputAddress) {
         document.querySelector('#addressErrorMsg').innerText = '';
         return true;
     } else {
-        document.querySelector('#addressErrorMsg').innerText = 'Adresse non valide';
+        document.querySelector('#addressErrorMsg').innerText = 'Veuillez saisir une adresse valide.';
         return false;
     }
 }
@@ -200,7 +202,7 @@ function validCity(inputCity) {
         document.querySelector('#cityErrorMsg').innerText = '';
         return true;
     } else {
-        document.querySelector('#cityErrorMsg').innerText = 'Nom de ville non valide';
+        document.querySelector('#cityErrorMsg').innerText = 'Veuillez saisir un nom de ville valide.';
         return false;
     }
 }
@@ -219,7 +221,7 @@ function validEmail(inputEmail) {
         document.querySelector('#emailErrorMsg').innerText = '';
         return true;
     } else {
-        document.querySelector('#emailErrorMsg').innerText = 'Email non valide';
+        document.querySelector('#emailErrorMsg').innerText = 'Veuillez saisir un email valide.';
         return false;
     }
 }
@@ -265,6 +267,7 @@ orderForm.addEventListener('submit', function(event) {
                 return res.json();
             }
         }).then(function(data) {
+            localStorage.removeItem('itemOrdered');
             //Rediriger vers la page de confirmation
             location.replace(`./confirmation.html?id=${data.orderId}`);
         }).catch(function(err) {
