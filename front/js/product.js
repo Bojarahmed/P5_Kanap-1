@@ -66,7 +66,6 @@ function addEntry (arrayData) {
         id : `${arrayData._id}`,
         quantity : itemQty,
         color : itemColor,
-        price : itemPrice
     };
     localStorage.setItem('entry', JSON.stringify(entry));
 

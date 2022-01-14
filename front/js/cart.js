@@ -4,127 +4,117 @@ let itemOrdered = JSON.parse(localStorage.getItem('itemOrdered'));
 console.log(itemOrdered);
 
 
+//Si panier vide ou n'existe pas, on affiche le message que le panier est vide
 if ( itemOrdered === null || itemOrdered.length === 0) {
     let emptyCart = document.querySelector('h1');
     emptyCart.innerText = "Votre panier est vide.";
-} else {
-    //Afficher pour chaque produit du panier
-    for (let i = 0; i < itemOrdered.length; i++) {
-        let url = `http://localhost:3000/api/products/${itemOrdered[i].id}`;
-
-        //Envoyer une requête HTTP pour récupérer les données
-        fetch(url).then(function(res) {
-            if (res.ok) {
-                return res.json();
-            }
-        }).then(function(data) {
-
-            //Insérer dans la balise article tous les éléments nécessaires
-            function insertContent() {
-            
-            //Créer la balise article qui va recevoir les éléments de chaque article dans le panier
-                let article = document.createElement('article');
-                document.querySelector('#cart__items').appendChild(article);
-                article.setAttribute('class', 'cart__item');
-                article.setAttribute('data-id', `${itemOrdered[i].id}`);
-                article.setAttribute('data-color', `${itemOrdered[i].color}`);
-                article.innerHTML = 
-                `<div class="cart__item__img">
-                    <img src="${data.imageUrl}" alt="${data.altTxt}">
-                </div>
-                <div class="cart__item__content">
-                    <div class="cart__item__content__description">
-                        <h2>${data.name}</h2>
-                        <p>${itemOrdered[i].color}</p>
-                        <p class="cart__item__content__price">${itemOrdered[i].price}€</p>
-                    </div>
-                    <div class="cart__item__content__settings">
-                        <div class="cart__item__content__settings__quantity">
-                            <p>Qté : </p>
-                            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${itemOrdered[i].quantity}">
-                        </div>
-                        <div class="cart__item__content__settings__delete">
-                            <p class="deleteItem">Supprimer</p>
-                        </div>
-                    </div>
-                </div>`;
-            }
-            insertContent();
-        
-            //Fonction pour modifier la quantité
-            function changeQty() {
-                let input = document.querySelectorAll('.itemQuantity'); //NodeList
-                let i = input.length-1;
-            
-                input[i].addEventListener('change', function() {
-                    if (this.value <= 0) {
-                        this.value = 0;
-                        itemOrdered.splice(i, 1);
-                    } else if (this.value > 100) {
-                        this.value = 100;
-                        itemOrdered[i].quantity = this.value;
-                    } else {
-                        itemOrdered[i].quantity = this.value;
-                    }
-                    localStorage.setItem('itemOrdered', JSON.stringify(itemOrdered));
-                    location.reload();
-                })
-            }
-            changeQty();
-        
-            //Fonction pour supprimer un article quand on clique sur "Supprimer"
-            function deleteItem() {
-                let deleteButton = document.querySelectorAll('.deleteItem'); //deleteButton = NodeList
-                let i = deleteButton.length-1;
-                        
-                deleteButton[i].addEventListener('click', function() {
-                    itemOrdered.splice(i, 1);
-                    localStorage.setItem('itemOrdered', JSON.stringify(itemOrdered));
-                    location.reload();
-                })
-            };
-            deleteItem();
-
-            //Fonction pour calculer le prix total
-            function cartTotalPrice() {
-                let input = document.querySelectorAll('.itemQuantity'); //input = array
-
-                let i = input.length-1;
-                let inputArticle = input[i].closest('article');
-                let articleId = inputArticle.dataset.id;
-                let articleColor = inputArticle.dataset.color;
-
-                let totalPrice = 0;
-                if (inputArticle.getAttribute('data-color') === articleColor && inputArticle.getAttribute('data-id') === articleId) {
-                    for (i = 0; i < itemOrdered.length; i++) {
-                        let quantity = itemOrdered[i].quantity;
-                        let unitPrice = itemOrdered[i].price;
-                        let itemPrice = Number(quantity) * Number(unitPrice);
-                        totalPrice += itemPrice;
-                    }
-                }
-                document.querySelector('#totalPrice').innerText = totalPrice;
-            }
-            cartTotalPrice();
-
-            //Fonction pour calculer le nombre total d'articles dans le panier
-            function cartTotalQty() {
-                let finalQty = 0;
-                for (let i = 0; i < itemOrdered.length; i++) {
-                    finalQty += Number(itemOrdered[i].quantity);
-                };
-                document.querySelector('#totalQuantity').innerText = finalQty;
-            }
-            cartTotalQty();
-
-
-
-
-        }).catch(function(err) {
-            console.log('Une erreur est survenue : ' + err);
-        });
-    };
 }
+
+
+//Afficher pour chaque produit du panier
+for (let i = 0; i < itemOrdered.length; i++) {
+    let url = `http://localhost:3000/api/products/${itemOrdered[i].id}`;
+    
+    //Envoyer une requête HTTP pour récupérer les données
+    fetch(url).then(function(res) {
+        if (res.ok) {
+            return res.json();
+        }
+    }).then(function(data) {
+ 
+        //Insérer dans la balise article tous les éléments nécessaires
+        function insertContent(data) {
+            let article = document.createElement('article');
+            document.querySelector('#cart__items').appendChild(article);
+            article.setAttribute('class', 'cart__item');
+            article.setAttribute('data-id', `${itemOrdered[i].id}`);
+            article.setAttribute('data-color', `${itemOrdered[i].color}`);
+            article.innerHTML = 
+            `<div class="cart__item__img">
+                <img src="${data.imageUrl}" alt="${data.altTxt}">
+            </div>
+            <div class="cart__item__content">
+                <div class="cart__item__content__description">
+                    <h2>${data.name}</h2>
+                    <p>${itemOrdered[i].color}</p>
+                    <p class="cart__item__content__price">${data.price}€</p>
+                </div>
+                <div class="cart__item__content__settings">
+                    <div class="cart__item__content__settings__quantity">
+                        <p>Qté : </p>
+                        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${itemOrdered[i].quantity}">
+                    </div>
+                    <div class="cart__item__content__settings__delete">
+                        <p class="deleteItem">Supprimer</p>
+                    </div>
+                </div>
+            </div>`;
+        };
+        insertContent(data);
+
+        //Fonction pour modifier la quantité
+        function changeQty() {
+            let input = document.querySelectorAll('.itemQuantity'); //NodeList
+            let i = input.length-1;
+                    
+            input[i].addEventListener('change', function() {
+                if (this.value <= 0) {
+                    this.value = 0;
+                    itemOrdered.splice(i, 1);
+                } else if (this.value > 100) {
+                    this.value = 100;
+                    itemOrdered[i].quantity = this.value;
+                } else {
+                    itemOrdered[i].quantity = this.value;
+                }
+                localStorage.setItem('itemOrdered', JSON.stringify(itemOrdered));
+                location.reload();
+            })
+        };
+        changeQty();
+
+        //Fonction pour supprimer un article quand on clique sur "Supprimer"
+        function deleteItem() {
+            let deleteButton = document.querySelectorAll('.deleteItem'); //deleteButton = NodeList
+            let i = deleteButton.length-1;
+                        
+            deleteButton[i].addEventListener('click', function() {
+                itemOrdered.splice(i, 1);
+                localStorage.setItem('itemOrdered', JSON.stringify(itemOrdered));
+                location.reload();
+            });
+        };
+        deleteItem();
+
+        //Fonction pour calculer le prix total
+        function cartTotalPrice() {
+            let articlePrice = document.querySelectorAll('.cart__item__content__price');
+            let totalPrice = 0;
+            for (let j = 0; j < itemOrdered.length; j++) {
+                let itemUnitPrice = articlePrice[j].textContent.split('€')[0];
+                let quantity = itemOrdered[j].quantity;
+                let itemTotalPrice = Number(quantity) * Number(itemUnitPrice);
+                totalPrice += itemTotalPrice;
+            }
+            document.querySelector('#totalPrice').innerText = totalPrice;
+        };
+        cartTotalPrice();
+        
+        //Fonction pour calculer le nombre total d'articles dans le panier
+        function cartTotalQty() {
+            let finalQty = 0;
+            for (let i = 0; i < itemOrdered.length; i++) {
+                finalQty += Number(itemOrdered[i].quantity);
+            };
+            document.querySelector('#totalQuantity').innerText = finalQty;
+        };
+        cartTotalQty();
+
+    }).catch(function(err) {
+        console.log('Une erreur est survenue : ' + err);
+    });
+};
+
 
 //Tableau pour récupérer les id des produits du panier
 const products = [];
@@ -133,7 +123,7 @@ for (let i = 0; i < itemOrdered.length; i++) {
     localStorage.setItem('idEntry', JSON.stringify(idEntry));
     products.push(idEntry);
 }
-console.log(products);
+
 
 /*********************************** Formulaire ***********************************/
 //Récupérer le formulaire
@@ -267,7 +257,8 @@ orderForm.addEventListener('submit', function(event) {
                 return res.json();
             }
         }).then(function(data) {
-            localStorage.removeItem('itemOrdered');
+            //Vider le panier
+            localStorage.clear();
             //Rediriger vers la page de confirmation
             location.replace(`./confirmation.html?id=${data.orderId}`);
         }).catch(function(err) {
